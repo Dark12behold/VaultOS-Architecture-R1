@@ -1,0 +1,115 @@
+name: R1 Build Gauntlet
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_path:
+        description: Relative path containing the R1 candidate manifest and components
+        required: false
+        default: r1-build
+  push:
+    branches: [main]
+    paths:
+      - 'r1-build/**'
+      - 'tests/r1/**'
+      - 'project/R1-BUILD-TEST-CONTRACT.md'
+      - '.github/workflows/r1-build-gauntlet.yml'
+  pull_request:
+    paths:
+      - 'r1-build/**'
+      - 'tests/r1/**'
+      - 'project/R1-BUILD-TEST-CONTRACT.md'
+      - '.github/workflows/r1-build-gauntlet.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  harness-self-test:
+    name: Harness self-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run deterministic harness tests
+        run: python3 -m unittest discover -s tests/r1 -p 'test_*.py' -v
+
+  candidate-evaluation:
+    name: R1 candidate evaluation
+    needs: harness-self-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve candidate
+        id: candidate
+        shell: bash
+        run: |
+          BUILD_PATH="${{ github.event.inputs.build_path }}"
+          if [ -z "$BUILD_PATH" ]; then BUILD_PATH="r1-build"; fi
+          echo "build_path=$BUILD_PATH" >> "$GITHUB_OUTPUT"
+          mkdir -p .generated-r1-evidence
+          if [ -d "$BUILD_PATH" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            cat > .generated-r1-evidence/result.json <<EOF
+          {
+            "harness_generation": "T1-r1-deterministic-v1",
+            "status": "BLOCKED",
+            "reason": "No R1 build candidate directory is present at $BUILD_PATH",
+            "repository_commit": "${GITHUB_SHA}",
+            "workflow_run": "${GITHUB_RUN_ID}"
+          }
+          EOF
+          fi
+
+      - name: Evaluate R1 candidate
+        id: evaluate
+        if: steps.candidate.outputs.present == 'true'
+        shell: bash
+        run: |
+          set +e
+          python3 tests/r1/harness.py \
+            --build-path "${{ steps.candidate.outputs.build_path }}" \
+            --output .generated-r1-evidence/result.json
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Add workflow provenance
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path('.generated-r1-evidence/result.json')
+          data = json.loads(p.read_text())
+          data['repository_commit'] = os.environ['GITHUB_SHA']
+          data['workflow_run'] = os.environ['GITHUB_RUN_ID']
+          data['workflow_attempt'] = os.environ['GITHUB_RUN_ATTEMPT']
+          data['workflow_ref'] = os.environ['GITHUB_WORKFLOW_REF']
+          p.write_text(json.dumps(data, indent=2, sort_keys=True) + '\n')
+          PY
+
+      - name: Upload R1 evaluation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r1-evaluation-${{ github.sha }}
+          path: .generated-r1-evidence/result.json
+          retention-days: 30
+
+      - name: Enforce candidate result
+        if: steps.candidate.outputs.present == 'true'
+        shell: bash
+        run: |
+          code="${{ steps.evaluate.outputs.exit_code }}"
+          if [ -z "$code" ]; then
+            echo "Candidate execution produced no result code."
+            exit 2
+          fi
+          if [ "$code" -ne 0 ]; then
+            echo "R1 candidate did not PASS deterministic T1 checks (exit $code)."
+            exit "$code"
+          fi
+          echo "R1 candidate passed deterministic T1 checks. This is not architecture promotion or deployment authorization."
