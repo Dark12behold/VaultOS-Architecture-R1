@@ -1,0 +1,50 @@
+name: Repository Bootstrap
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - .github/workflows/repository-bootstrap.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure standard labels exist
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ensure_label() {
+            local name="$1"
+            local color="$2"
+            local description="$3"
+            if gh api "repos/${GITHUB_REPOSITORY}/labels/${name}" >/dev/null 2>&1; then
+              echo "label exists: $name"
+            else
+              gh api --method POST "repos/${GITHUB_REPOSITORY}/labels" \
+                -f name="$name" -f color="$color" -f description="$description" >/dev/null
+              echo "created label: $name"
+            fi
+          }
+          ensure_label "work:observation" "0E8A16" "Observed behavior requiring preservation or evaluation"
+          ensure_label "work:architecture" "1D76DB" "Architecture concern, ambiguity, contradiction, or bounded change work"
+          ensure_label "work:gauntlet-candidate" "5319E7" "Candidate transfer into the independent Gauntlet lineage"
+          ensure_label "work:knowledge-gap" "FBCA04" "Explicit unresolved knowledge or evidence gap"
+          ensure_label "work:regression" "D93F0B" "Previously validated behavior may have regressed"
+          ensure_label "evidence:none" "BFDADC" "No evidence attached yet"
+          ensure_label "evidence:pending" "D4C5F9" "Evidence collection or review pending"
+          ensure_label "evidence:partial" "FEF2C0" "Evidence exists but is incomplete"
+          ensure_label "evidence:supported" "C2E0C6" "Claim has supporting evidence, not necessarily verification"
+          ensure_label "evidence:contradicted" "B60205" "Available evidence materially contradicts the claim"
+          ensure_label "evidence:verified" "0E8A16" "Declared verification conditions satisfied"
+          ensure_label "status:blocked" "B60205" "Work cannot proceed because a required dependency is unavailable"
+          ensure_label "status:uncertain" "FBCA04" "Current evidence or state is insufficient for a determinate result"
+          ensure_label "impact:architecture" "1D76DB" "May affect governed architecture"
+          ensure_label "impact:local" "BFDADC" "Expected to remain local to an implementation or experiment"
