@@ -1,0 +1,47 @@
+name: Observation
+description: Record measurable or inspectable behavior before interpretation.
+title: "Observation — "
+body:
+  - type: markdown
+    attributes:
+      value: "Observation records what happened. Evaluation records what it means."
+  - type: input
+    id: context
+    attributes:
+      label: Context
+      description: System/revision/environment under observation.
+    validations:
+      required: true
+  - type: textarea
+    id: stimulus
+    attributes:
+      label: Stimulus / starting condition
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected observable behavior
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual observable behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence / artifacts
+      description: Logs, screenshots, hashes, test output, source refs, or other inspectable evidence.
+  - type: textarea
+    id: uncertainty
+    attributes:
+      label: Uncertainty / measurement limits
+      description: What is unknown, inferred, assumed, contradictory, or unobservable?
+  - type: checkboxes
+    id: interpretation_boundary
+    attributes:
+      label: Observation boundary
+      options:
+        - label: I have not silently converted interpretation into observed fact.
+          required: true
