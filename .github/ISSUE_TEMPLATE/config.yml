@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Architecture records and schemas
+    url: https://github.com/Dark12behold/VaultOS-Architecture-R1/tree/main/schemas
+    about: Review the governing record shapes before opening an unstructured issue.
