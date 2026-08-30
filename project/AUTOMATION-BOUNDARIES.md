@@ -2,6 +2,21 @@
 
 Status: operational governance
 
+## Protected separations
+
+Automation SHALL preserve these distinctions:
+
+- observation != interpretation;
+- interpretation != authorization;
+- learning != modification;
+- proposal != authorization;
+- proposal != permission;
+- capability != authority;
+- execution != success;
+- confidence != evidence;
+- implementation != verification;
+- experimental success != architectural promotion.
+
 ## Automation may
 
 - create deterministic checks;
