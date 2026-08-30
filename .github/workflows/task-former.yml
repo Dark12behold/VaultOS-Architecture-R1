@@ -1,0 +1,99 @@
+name: Task Former
+
+on:
+  workflow_dispatch:
+    inputs:
+      work_box:
+        description: Work box or task class
+        required: true
+        type: choice
+        options:
+          - Observation
+          - Architecture Issue
+          - Evidence
+          - Evaluation
+          - Diagnosis
+          - Correction
+          - Experiment
+          - Verification
+          - Finding
+          - Inheritance
+          - Gauntlet Candidate
+          - Procurement
+          - Release
+          - Deployment
+      title:
+        description: Short task title
+        required: true
+        type: string
+      source_ref:
+        description: Source issue, commit, finding, or external reference
+        required: false
+        type: string
+      reason:
+        description: Why this task exists
+        required: true
+        type: string
+      consequence:
+        description: What is at risk if unresolved
+        required: false
+        type: string
+      evidence_state:
+        description: Current evidence state
+        required: true
+        default: Pending
+        type: choice
+        options:
+          - None
+          - Pending
+          - Partial
+          - Supported
+          - Contradicted
+          - Verified
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  form-task:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create structured issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WORK_BOX: ${{ inputs.work_box }}
+          TASK_TITLE: ${{ inputs.title }}
+          SOURCE_REF: ${{ inputs.source_ref }}
+          REASON: ${{ inputs.reason }}
+          CONSEQUENCE: ${{ inputs.consequence }}
+          EVIDENCE_STATE: ${{ inputs.evidence_state }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          body=$(cat <<EOF
+          ## Work Box
+          ${WORK_BOX}
+
+          ## Source
+          ${SOURCE_REF:-Not supplied}
+
+          ## Reason
+          ${REASON}
+
+          ## Consequence if unresolved
+          ${CONSEQUENCE:-Not supplied}
+
+          ## Evidence Status
+          ${EVIDENCE_STATE}
+
+          ## Formation provenance
+          Created by the repository Task Former workflow.
+          Workflow run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+          Source revision: ${GITHUB_SHA}
+
+          ## Authority boundary
+          Automated task formation creates a work item only. It does not establish truth, diagnosis, authorization, verification, or architectural promotion.
+          EOF
+          )
+          gh issue create --title "${WORK_BOX} — ${TASK_TITLE}" --body "$body"
