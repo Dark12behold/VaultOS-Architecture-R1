@@ -1,0 +1,57 @@
+{
+  "schema": "chatgpt.reasoning.procedure-run.v1",
+  "run_id": "2026-08-30-bootstrap",
+  "timestamp_utc": "2026-08-30T00:00:00Z",
+  "goal": "Create a dedicated learning suite for ChatGPT reasoning, GitHub navigation, agent routing, timing, synchronization, and procedure refinement.",
+  "task_class": "workspace-bootstrap",
+  "starting_state": "VaultOS architecture repository available; no dedicated reasoning-learning repository exists; GitHub connector supports repository content operations but does not expose repository creation.",
+  "route": [
+    {
+      "actor": "GitHub.list_repositories",
+      "action": "inspect accessible repository topology",
+      "input_shape": "owner-scoped repository listing",
+      "sync_class": "BLOCKING"
+    },
+    {
+      "actor": "GitHub.create_branch",
+      "action": "isolate staging substrate from architecture main",
+      "input_shape": "known parent commit plus branch name",
+      "sync_class": "BLOCKING"
+    },
+    {
+      "actor": "GitHub.create_file",
+      "action": "materialize contract, schema, analyzer, tests, workflow, and first procedure record",
+      "input_shape": "small complete UTF-8 files",
+      "sync_class": "JOIN_REQUIRED"
+    }
+  ],
+  "observations": {
+    "friction": [
+      "Installed GitHub connector has no create-repository mutation."
+    ],
+    "ambiguities": [],
+    "holes": [
+      "Dedicated-repository provisioning cannot be completed through the currently exposed GitHub tool surface."
+    ],
+    "repairs": [
+      "Stage the suite on an isolated branch with a clearly declared migration target instead of contaminating architecture main or repurposing an unrelated repository.",
+      "Create a GitHub task for dedicated-repository provisioning and migration."
+    ],
+    "external_precedent": []
+  },
+  "evidence": [
+    "staging/chatgpt-reasoning-learning-suite",
+    "reasoning-learning-suite/README.md",
+    "reasoning-learning-suite/LEARNING-SUITE.md",
+    "reasoning-learning-suite/schemas/procedure-run.schema.json",
+    "reasoning-learning-suite/tools/analyze_runs.py",
+    "reasoning-learning-suite/tests/test_analyze_runs.py",
+    ".github/workflows/reasoning-learning-suite.yml"
+  ],
+  "product_outcome": "BLOCKED",
+  "procedure_outcome": "ACCEPTABLE",
+  "reusable_rule": "When a requested container cannot be provisioned by the current tool surface, isolate complete staged work in a reversible branch and record the missing capability as an explicit migration task rather than silently changing the user's requested topology.",
+  "negative_rule": "Do not repurpose an unrelated existing repository merely because it is empty.",
+  "next_experiment": "Run the suite self-tests and learning summary workflow, then migrate to Dark12behold/ChatGPT-Reasoning-Learning-Suite when repository creation becomes available.",
+  "disposition": "ADOPT_LOCAL"
+}
