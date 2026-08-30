@@ -1,0 +1,148 @@
+name: Agent Feedback Router
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_group:
+        description: "Originating group"
+        required: true
+        type: choice
+        options:
+          - intake
+          - architecture
+          - implementation
+          - procurement
+          - peaches
+          - gauntlet
+          - evaluator
+          - evidence
+          - release
+          - human-governance
+      status:
+        description: "Current response status"
+        required: true
+        type: choice
+        options:
+          - RECEIVED
+          - NEEDS_INPUT
+          - PROPOSED
+          - READY
+          - BLOCKED
+          - EXECUTING
+          - VERIFYING
+          - PASS
+          - FAIL
+          - UNCERTAIN
+          - DEFERRED
+          - ESCALATED
+      consequence:
+        description: "Consequence class"
+        required: true
+        type: choice
+        options:
+          - low
+          - bounded
+          - high
+      timeline_status:
+        description: "Timeline status"
+        required: true
+        type: choice
+        options:
+          - UNSCHEDULED
+          - WAITING_DEPENDENCY
+          - READY
+          - SCHEDULED
+          - ACTIVE
+          - PAUSED
+          - REVIEW_DUE
+          - VERIFY_DUE
+          - OVERDUE
+          - COMPLETE
+          - CANCELLED
+      source_ref:
+        description: "Issue, run, commit, evidence, or task reference"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  route:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve downstream action
+        shell: bash
+        env:
+          SOURCE_GROUP: ${{ inputs.source_group }}
+          STATUS: ${{ inputs.status }}
+          CONSEQUENCE: ${{ inputs.consequence }}
+          TIMELINE_STATUS: ${{ inputs.timeline_status }}
+          SOURCE_REF: ${{ inputs.source_ref }}
+        run: |
+          set -euo pipefail
+          target=""
+          action=""
+
+          case "$STATUS" in
+            NEEDS_INPUT)
+              target="intake"
+              action="request-bounded-input"
+              ;;
+            FAIL)
+              target="evaluator"
+              action="form-issue-or-failure-class"
+              ;;
+            UNCERTAIN)
+              target="evidence"
+              action="collect-more-evidence"
+              ;;
+            ESCALATED)
+              target="human-governance"
+              action="review-escalation"
+              ;;
+            PASS)
+              if [[ "$SOURCE_GROUP" == "evaluator" ]]; then
+                target="evidence"
+                action="preserve-evaluation"
+              else
+                target="evaluator"
+                action="independent-verification"
+              fi
+              ;;
+            BLOCKED)
+              target="intake"
+              action="resolve-blocker"
+              ;;
+            *)
+              target="${SOURCE_GROUP}"
+              action="continue-role-work"
+              ;;
+          esac
+
+          if [[ "$TIMELINE_STATUS" == "OVERDUE" && "$CONSEQUENCE" == "high" ]]; then
+            target="human-governance"
+            action="overdue-high-consequence-review"
+          fi
+
+          if [[ "$CONSEQUENCE" == "high" && "$STATUS" == "PASS" && "$SOURCE_GROUP" != "evaluator" ]]; then
+            target="evaluator"
+            action="mandatory-independent-verification"
+          fi
+
+          {
+            echo "source_group=$SOURCE_GROUP"
+            echo "status=$STATUS"
+            echo "consequence=$CONSEQUENCE"
+            echo "timeline_status=$TIMELINE_STATUS"
+            echo "source_ref=$SOURCE_REF"
+            echo "target_group=$target"
+            echo "desired_action=$action"
+          } | tee agent-route.txt
+
+      - name: Upload route decision
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-feedback-route
+          path: agent-route.txt
+          retention-days: 30
