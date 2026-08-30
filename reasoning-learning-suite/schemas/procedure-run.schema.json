@@ -39,7 +39,27 @@
           "expected_latency_ms": {"type": "number", "minimum": 0},
           "actual_latency_ms": {"type": "number", "minimum": 0},
           "verification_cost": {"type": "number", "minimum": 0},
-          "measurement_source": {"type": "string"}
+          "measurement_source": {"type": "string"},
+          "agent_observation": {
+            "type": "object",
+            "properties": {
+              "agent_id": {"type": "string", "minLength": 1},
+              "agent_version": {"type": ["string", "null"]},
+              "representation": {"type": "string"},
+              "granularity": {"enum": ["micro", "narrow", "bounded", "broad"]},
+              "context_class": {"type": "string"},
+              "vocabulary_notes": {"type": "string"},
+              "constraint_density": {"type": "string"},
+              "output_contract": {"type": "string"},
+              "retry_count": {"type": "integer", "minimum": 0},
+              "failure_mode": {"type": ["string", "null"]},
+              "result_quality": {"type": "number", "minimum": 0, "maximum": 1},
+              "result_reliability": {"type": "number", "minimum": 0, "maximum": 1},
+              "training_scope": {"enum": ["NATURAL_WORK", "DELIBERATE_COMPARISON"]}
+            },
+            "required": ["agent_id", "representation", "granularity", "training_scope"],
+            "additionalProperties": true
+          }
         },
         "additionalProperties": true
       }
