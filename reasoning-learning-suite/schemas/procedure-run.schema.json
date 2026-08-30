@@ -21,6 +21,8 @@
     "goal": {"type": "string", "minLength": 1},
     "task_class": {"type": "string", "minLength": 1},
     "starting_state": {"type": "string", "minLength": 1},
+    "experiment_id": {"type": ["string", "null"]},
+    "route_variant": {"type": ["string", "null"]},
     "route": {
       "type": "array",
       "minItems": 1,
@@ -36,11 +38,22 @@
           },
           "expected_latency_ms": {"type": "number", "minimum": 0},
           "actual_latency_ms": {"type": "number", "minimum": 0},
-          "verification_cost": {"type": "number", "minimum": 0}
+          "verification_cost": {"type": "number", "minimum": 0},
+          "measurement_source": {"type": "string"}
         },
         "additionalProperties": true
       }
     },
+    "quality": {
+      "type": "object",
+      "properties": {
+        "correctness": {"type": "number", "minimum": 0, "maximum": 1},
+        "evidence_quality": {"type": "number", "minimum": 0, "maximum": 1},
+        "result_reliability": {"type": "number", "minimum": 0, "maximum": 1}
+      },
+      "additionalProperties": false
+    },
+    "recovery_cost": {"type": "number", "minimum": 0},
     "observations": {
       "type": "object",
       "properties": {
