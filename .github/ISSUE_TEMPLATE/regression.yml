@@ -1,0 +1,45 @@
+name: Regression
+description: Record behavior that may have fallen below a previously validated state.
+title: "Regression — "
+body:
+  - type: input
+    id: prior_baseline
+    attributes:
+      label: Prior passing baseline / evidence reference
+    validations:
+      required: true
+  - type: input
+    id: current_revision
+    attributes:
+      label: Current revision/build under test
+    validations:
+      required: true
+  - type: textarea
+    id: changed_behavior
+    attributes:
+      label: Observed changed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction conditions
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence / artifacts
+    validations:
+      required: true
+  - type: textarea
+    id: gauntlet
+    attributes:
+      label: Existing Gauntlet scenario or candidate relevance
+  - type: checkboxes
+    id: history
+    attributes:
+      label: Historical integrity
+      options:
+        - label: The prior PASS remains historical evidence for its original test context; this report adds new evidence rather than rewriting it.
+          required: true
