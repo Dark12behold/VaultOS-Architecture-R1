@@ -1,0 +1,41 @@
+name: Evidence Integrity
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build repository evidence manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .generated-evidence
+          {
+            echo "repository=${GITHUB_REPOSITORY}"
+            echo "commit=${GITHUB_SHA}"
+            echo "workflow=${GITHUB_WORKFLOW}"
+            echo "run_id=${GITHUB_RUN_ID}"
+            echo "generated_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo
+            echo "sha256  path"
+            find architecture project schemas .github -type f -print0 \
+              | sort -z \
+              | xargs -0 sha256sum
+          } > .generated-evidence/repository-manifest.txt
+          cat .generated-evidence/repository-manifest.txt
+      - name: Upload evidence manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: architecture-evidence-manifest-${{ github.sha }}
+          path: .generated-evidence/repository-manifest.txt
+          if-no-files-found: error
+          retention-days: 30
