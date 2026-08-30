@@ -2,7 +2,7 @@
 
 ## Objective
 
-Improve the architect/orchestrator's operational reasoning inside GitHub environments by learning from observed tool behavior, agent behavior, execution timing, evidence quality, failure recovery, and competing execution routes.
+Improve the architect/orchestrator's operational reasoning inside GitHub environments by learning from observed tool behavior, agent behavior, execution timing, evidence quality, failure recovery, competing execution routes, and agent-specific input/timing preferences.
 
 ## Dual evaluation
 
@@ -56,6 +56,16 @@ For each agent/tool and task class, learn:
 `task_class -> preferred_input_representation -> preferred_granularity -> context_tolerance -> latency_distribution -> failure_modes -> result_quality -> verification_cost -> blocking_class -> confidence`
 
 No profile is assumed permanent. Profiles are empirical and versioned by observation.
+
+## Agent-specific training regime
+
+The suite MUST train routing behavior against agents individually instead of assuming one universal prompt or synchronization strategy.
+
+Agent training is defined in `AGENT-TRAINING-REGIME.md` and uses real work whenever possible. It evaluates representation, granularity, context volume, vocabulary, constraint density, output contract, synchronization class, retry strategy, latency, verification burden, reliability, and failure patterns per agent and task class.
+
+Agent observations may accumulate continuously during normal work, but consolidation and promotion occur only at the end of a meaningful run or during an explicitly requested periodic review. Inconclusive evidence is preserved without spawning another training instance or mutating the current routing method.
+
+Agent-specific preferences remain scoped and reversible. They guide routing; they do not grant authority.
 
 ## Synchronization classes
 
