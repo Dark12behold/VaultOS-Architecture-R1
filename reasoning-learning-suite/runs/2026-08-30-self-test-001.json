@@ -1,0 +1,90 @@
+{
+  "schema": "chatgpt.reasoning.procedure-run.v1",
+  "run_id": "2026-08-30-self-test-001",
+  "timestamp_utc": "2026-08-30T17:45:00Z",
+  "goal": "Use the Reasoning Learning Suite to evaluate a real reasoning route performed by ChatGPT against the suite itself, identify measurement holes, and define the next optimization experiment.",
+  "task_class": "recursive-workspace-evaluation",
+  "starting_state": "Suite bootstrap workflow had passed, but only one bootstrap procedure record existed and actor latency/verification metrics were null.",
+  "route": [
+    {
+      "actor": "personal_context.search",
+      "action": "Recover exact prior suite state before acting",
+      "input_shape": "focused continuation query naming suite, branch, workflow, analyzer, schema, bootstrap and testing principles",
+      "sync_class": "BLOCKING",
+      "verification_cost": 1
+    },
+    {
+      "actor": "api_tool.list_resources",
+      "action": "Discover only workflow-related GitHub operations needed for live inspection",
+      "input_shape": "GitHub path filtered by single keyword workflow",
+      "sync_class": "BLOCKING",
+      "verification_cost": 1
+    },
+    {
+      "actor": "GitHub.fetch_workflow_job_logs",
+      "action": "Inspect actual bootstrap execution rather than trusting green workflow status",
+      "input_shape": "known repository plus known successful job id",
+      "sync_class": "BLOCKING",
+      "verification_cost": 2
+    },
+    {
+      "actor": "api_tool.list_resources",
+      "action": "Discover file operation required to inspect schema before writing a new run",
+      "input_shape": "GitHub path filtered by single keyword file",
+      "sync_class": "BLOCKING",
+      "verification_cost": 1
+    },
+    {
+      "actor": "GitHub.fetch_file",
+      "action": "Read current ProcedureRun schema at the exact staging branch",
+      "input_shape": "known repository, exact schema path, exact branch",
+      "sync_class": "BLOCKING",
+      "verification_cost": 1
+    },
+    {
+      "actor": "GitHub.create_file",
+      "action": "Persist this self-test as a second empirical procedure run",
+      "input_shape": "schema-conforming JSON record on isolated staging branch",
+      "sync_class": "JOIN_REQUIRED",
+      "verification_cost": 2
+    }
+  ],
+  "observations": {
+    "friction": [
+      "The suite currently depends on manually authored procedure records; it cannot automatically observe ChatGPT connector calls.",
+      "Tool latency values visible in connector responses are not automatically captured into ProcedureRun records.",
+      "The workflow summary aggregates actor latency only when records contain actual_latency_ms, so the first summary reported null latency for all actors."
+    ],
+    "ambiguities": [
+      "Verification cost is currently an uncalibrated numeric field; values are comparable only weakly until a scale is defined.",
+      "Procedure efficiency cannot yet be inferred from one route because there is no competing route for the same task class."
+    ],
+    "holes": [
+      "No automatic trace ingestion from connector/tool execution into run records.",
+      "No baseline-versus-candidate route comparison object.",
+      "No normalized quality score combining correctness, evidence, latency, calls, verification burden and recovery cost.",
+      "No promotion threshold preventing a one-off routing observation from becoming a default rule."
+    ],
+    "repairs": [
+      "Record the recursive self-test as a second empirical run rather than describing it only in conversation.",
+      "Use exact branch/path reads before writes to keep the suite self-consistent.",
+      "Treat missing latency as missing evidence, not zero latency.",
+      "Require repeated or paired-route evidence before ADOPT_DEFAULT."
+    ],
+    "external_precedent": []
+  },
+  "evidence": [
+    "Workflow run 33325801587 completed successfully.",
+    "Job 99295585565 ran 3 analyzer tests successfully in 0.002s.",
+    "Bootstrap summary had run_count=1, product_outcome BLOCKED=1, procedure_outcome ACCEPTABLE=1.",
+    "Bootstrap summary reported null mean and median latency for all three recorded GitHub actors.",
+    "Artifact 9736181228 was uploaded with SHA256 e5f2db1bc5b0793d63e5a292c31e84ee28f8d4890f3b1bbc0acb2d2653fdd555.",
+    "Current ProcedureRun schema explicitly supports actual_latency_ms, expected_latency_ms, verification_cost, synchronization classes, reusable/negative rules and next experiments."
+  ],
+  "product_outcome": "PASS",
+  "procedure_outcome": "ACCEPTABLE",
+  "reusable_rule": "A reasoning-learning system must evaluate its own observation route as data; green CI proves machinery health but optimization claims require measured competing routes and non-null performance evidence.",
+  "negative_rule": "Do not call a reasoning route faster, smarter, or default-worthy when latency, verification burden, and a comparison baseline have not actually been measured.",
+  "next_experiment": "Run two materially different GitHub retrieval routes against the same repository question, capture connector latency from each call, count calls and verification operations, verify both answers against the same source evidence, then compare effective route cost before adopting either route.",
+  "disposition": "RETEST"
+}
