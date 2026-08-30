@@ -1,0 +1,64 @@
+name: Gauntlet Candidate
+description: Propose a portable failure class or challenge for the independent test lineage.
+title: "Gauntlet Candidate — "
+body:
+  - type: markdown
+    attributes:
+      value: "Issue queue != Gauntlet queue. This form proposes transfer; it does not grant test-lineage promotion."
+  - type: input
+    id: source
+    attributes:
+      label: Source issue / finding
+      description: Link the originating issue, finding, or evidence record.
+    validations:
+      required: true
+  - type: input
+    id: revision
+    attributes:
+      label: Originating architecture/build revision
+    validations:
+      required: true
+  - type: textarea
+    id: failure_class
+    attributes:
+      label: Failure class / challenge class
+    validations:
+      required: true
+  - type: textarea
+    id: invariant
+    attributes:
+      label: Affected invariant or behavioral contract
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction conditions
+      description: Starting state, stimulus, environment, dependencies, and observable trigger.
+    validations:
+      required: true
+  - type: textarea
+    id: expected_safe
+    attributes:
+      label: Expected safe behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence / provenance
+  - type: textarea
+    id: falsification
+    attributes:
+      label: Falsification condition
+      description: What result would show that the proposed failure classification is wrong or incomplete?
+  - type: dropdown
+    id: proposed_status
+    attributes:
+      label: Proposed queue status
+      options:
+        - Exploratory
+        - Reproduction needed
+        - Scenario candidate
+        - Regression candidate
+        - Deferred
+    validations:
+      required: true
