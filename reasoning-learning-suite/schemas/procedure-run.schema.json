@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vaultos.local/schemas/procedure-run.schema.json",
+  "title": "ProcedureRun",
+  "type": "object",
+  "required": [
+    "schema",
+    "run_id",
+    "goal",
+    "task_class",
+    "starting_state",
+    "route",
+    "observations",
+    "product_outcome",
+    "procedure_outcome"
+  ],
+  "properties": {
+    "schema": {"const": "chatgpt.reasoning.procedure-run.v1"},
+    "run_id": {"type": "string", "minLength": 1},
+    "timestamp_utc": {"type": "string"},
+    "goal": {"type": "string", "minLength": 1},
+    "task_class": {"type": "string", "minLength": 1},
+    "starting_state": {"type": "string", "minLength": 1},
+    "route": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["actor", "action", "input_shape"],
+        "properties": {
+          "actor": {"type": "string"},
+          "action": {"type": "string"},
+          "input_shape": {"type": "string"},
+          "sync_class": {
+            "enum": ["BLOCKING", "ADVISORY", "SPECULATIVE", "JOIN_REQUIRED", "NEVER_SYNC_UNTIL_GATE", "CANCEL_ON_FALSIFICATION"]
+          },
+          "expected_latency_ms": {"type": "number", "minimum": 0},
+          "actual_latency_ms": {"type": "number", "minimum": 0},
+          "verification_cost": {"type": "number", "minimum": 0}
+        },
+        "additionalProperties": true
+      }
+    },
+    "observations": {
+      "type": "object",
+      "properties": {
+        "friction": {"type": "array", "items": {"type": "string"}},
+        "ambiguities": {"type": "array", "items": {"type": "string"}},
+        "holes": {"type": "array", "items": {"type": "string"}},
+        "repairs": {"type": "array", "items": {"type": "string"}},
+        "external_precedent": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": true
+    },
+    "evidence": {"type": "array", "items": {"type": "string"}},
+    "product_outcome": {"enum": ["PASS", "FAIL", "BLOCKED", "UNCERTAIN"]},
+    "procedure_outcome": {"enum": ["EFFICIENT", "ACCEPTABLE", "INEFFICIENT", "FAULTY", "UNCERTAIN"]},
+    "reusable_rule": {"type": ["string", "null"]},
+    "negative_rule": {"type": ["string", "null"]},
+    "next_experiment": {"type": ["string", "null"]},
+    "disposition": {"enum": ["OBSERVE", "RETEST", "ADOPT_LOCAL", "ADOPT_DEFAULT", "REJECT", "SUPERSEDE"]}
+  },
+  "additionalProperties": true
+}
