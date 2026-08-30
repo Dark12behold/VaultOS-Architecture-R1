@@ -1,0 +1,46 @@
+name: Issue Router
+
+on:
+  issues:
+    types: [opened, labeled]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  route-opened:
+    if: github.event.action == 'opened'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply work and evidence labels from structured title
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITLE: ${{ github.event.issue.title }}
+          NUMBER: ${{ github.event.issue.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          labels=("evidence:pending")
+          case "$TITLE" in
+            "Observation — "*) labels+=("work:observation") ;;
+            "Architecture Issue — "*) labels+=("work:architecture" "impact:architecture") ;;
+            "Gauntlet Candidate — "*) labels+=("work:gauntlet-candidate") ;;
+            "Knowledge Gap — "*) labels+=("work:knowledge-gap") ;;
+            "Regression — "*) labels+=("work:regression") ;;
+          esac
+          args=()
+          for label in "${labels[@]}"; do args+=(--add-label "$label"); done
+          gh issue edit "$NUMBER" "${args[@]}"
+
+  gauntlet-boundary:
+    if: github.event.action == 'labeled' && github.event.label.name == 'work:gauntlet-candidate'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Record transfer boundary reminder
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ github.event.issue.number }}
+        shell: bash
+        run: |
+          gh issue comment "$NUMBER" --body $'### Independent Gauntlet transfer boundary\nThis label places the issue in the **candidate** class only. It does not promote the issue into the independent test lineage. Transfer requires source provenance, originating revision/build, failure or challenge class, reproduction conditions, expected safe behavior, falsification condition, and evidence references. Once transferred, the independent Gauntlet owns scenario evolution; the originating R revision does not.'
