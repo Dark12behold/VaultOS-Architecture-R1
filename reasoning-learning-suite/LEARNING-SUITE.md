@@ -2,7 +2,7 @@
 
 ## Objective
 
-Improve the architect/orchestrator's operational reasoning inside GitHub environments by learning from observed tool behavior, agent behavior, execution timing, evidence quality, and failure recovery.
+Improve the architect/orchestrator's operational reasoning inside GitHub environments by learning from observed tool behavior, agent behavior, execution timing, evidence quality, failure recovery, and competing execution routes.
 
 ## Dual evaluation
 
@@ -17,7 +17,37 @@ A product PASS with a poor route may still generate a procedure correction. A fa
 
 Each meaningful operation cluster SHOULD capture:
 
-`goal -> starting_state -> route -> input_shape -> tools_or_agents -> expected_latency -> actual_latency -> friction -> ambiguity -> hole -> repair -> evidence -> product_outcome -> procedure_outcome -> reusable_rule -> negative_rule -> next_experiment`
+`goal -> starting_state -> route -> input_shape -> tools_or_agents -> expected_latency -> actual_latency -> verification_cost -> recovery_cost -> quality -> friction -> ambiguity -> hole -> repair -> evidence -> product_outcome -> procedure_outcome -> reusable_rule -> negative_rule -> next_experiment`
+
+Missing performance measurements are missing evidence, never zero-cost evidence.
+
+## Measured efficiency
+
+`EFFICIENT` is a comparative claim, not a synonym for `PASS`.
+
+A route may be called efficient only when:
+
+- all route steps have measured latency and verification cost;
+- recovery cost is recorded;
+- correctness, evidence quality, and result reliability are measured on a normalized 0..1 scale;
+- the route participates in a named comparison experiment with at least one materially different route variant for the same question or task condition;
+- the compared routes are verified against equivalent source evidence.
+
+The analyzer flags `EFFICIENT` claims that lack complete measurement or a comparison experiment.
+
+## Route comparison
+
+The suite avoids inventing arbitrary weighted scores as its first method. It uses Pareto comparison across:
+
+Lower is better:
+
+`total latency | call count | verification cost | recovery cost`
+
+Higher is better:
+
+`correctness | evidence quality | result reliability`
+
+A route dominates another only when it is no worse on every measured dimension and strictly better on at least one. If one route is faster while another has stronger evidence, the result is a tradeoff rather than a fake universal winner.
 
 ## Agent performance fingerprint
 
@@ -54,14 +84,19 @@ Escalate only when the lower layer cannot answer the question with sufficient ev
 - Evidence must survive skipped, blocked, and failing execution.
 - Tool output is an observation; architect conclusion is separate.
 - External source evidence reduces ambiguity but does not validate local behavior.
+- A single successful observation cannot establish a default routing rule.
 
 ## Learning promotion
 
-A procedural observation becomes a reusable routing rule only after at least one successful local application and no known contradiction. Higher-impact rules should accumulate repeated observations across task classes before becoming default behavior.
+Reusable rules begin in `OBSERVE`.
 
-Possible dispositions:
+The analyzer may classify a rule as a `CANDIDATE` only after at least three observations, at least two fully measured observations, and no known FAIL/FAULTY/INEFFICIENT observation associated with that rule. `CANDIDATE` still does not mean automatic default adoption.
+
+Possible run dispositions remain:
 
 `OBSERVE | RETEST | ADOPT_LOCAL | ADOPT_DEFAULT | REJECT | SUPERSEDE`
+
+Default adoption requires architect evaluation of the candidate evidence and can be reversed when later measurements contradict the rule.
 
 ## Anti-bureaucracy constraint
 
