@@ -1,0 +1,49 @@
+name: Architecture Governance
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify required governing files
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            README.md
+            architecture/R1-DEVELOPMENTAL-TEST-PHILOSOPHY.md
+            architecture/GAUNTLET-FEEDBACK-BOUNDARY.md
+            project/R1-WORK-TOPOLOGY.md
+            project/DEPENDENCY-MAP.md
+            project/ACTION-SUITE.md
+            project/AUTOMATION-BOUNDARIES.md
+            project/CROSS-REPO-CONTRACT.md
+            schemas/OBSERVATION-RECORD.md
+            schemas/ISSUE-RECORD.md
+            schemas/GAUNTLET-CANDIDATE.md
+          )
+          missing=0
+          for path in "${required[@]}"; do
+            if [[ ! -f "$path" ]]; then
+              echo "::error file=$path::Required governing file is missing"
+              missing=1
+            fi
+          done
+          exit "$missing"
+      - name: Verify protected separation statements remain represented
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -qi "proposal.*authorization\|proposal.*permission" README.md project/AUTOMATION-BOUNDARIES.md
+          grep -qi "implementation.*verification" README.md project/AUTOMATION-BOUNDARIES.md
+          grep -qi "independent.*test\|test lineage" architecture/GAUNTLET-FEEDBACK-BOUNDARY.md project/CROSS-REPO-CONTRACT.md
+          grep -qi "Issue queue.*Gauntlet queue\|issue queue.*gauntlet queue" architecture/GAUNTLET-FEEDBACK-BOUNDARY.md schemas/GAUNTLET-CANDIDATE.md
