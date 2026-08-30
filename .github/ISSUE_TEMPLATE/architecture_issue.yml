@@ -1,0 +1,64 @@
+name: Architecture Issue
+description: Record an ambiguity, contradiction, limitation, or proposed architecture concern.
+title: "Architecture Issue — "
+body:
+  - type: textarea
+    id: observed_condition
+    attributes:
+      label: Observed condition or source concern
+      description: State what triggered this issue and distinguish observation from interpretation.
+    validations:
+      required: true
+  - type: dropdown
+    id: class
+    attributes:
+      label: Issue class
+      options:
+        - Defect candidate
+        - Limitation
+        - Ambiguity
+        - Contradiction
+        - Knowledge gap
+        - Complexity concern
+        - Security/authority concern
+        - Observability gap
+        - Regression risk
+        - Generalization candidate
+    validations:
+      required: true
+  - type: textarea
+    id: affected
+    attributes:
+      label: Affected structure / invariant / contract
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence / provenance
+  - type: textarea
+    id: competing
+    attributes:
+      label: Competing explanations or interpretations
+  - type: textarea
+    id: consequence
+    attributes:
+      label: Consequence if unresolved
+  - type: dropdown
+    id: disposition
+    attributes:
+      label: Initial disposition
+      options:
+        - Evaluate
+        - Diagnose
+        - Defer
+        - Reject
+        - Needs observation
+        - Needs independent review
+    validations:
+      required: true
+  - type: checkboxes
+    id: authority
+    attributes:
+      label: Authority boundary
+      options:
+        - label: This issue does not itself authorize architecture modification.
+          required: true
