@@ -1,0 +1,41 @@
+name: Knowledge Gap
+description: Record an explicit unknown that blocks or weakens reasoning, implementation, testing, or governance.
+title: "Knowledge Gap — "
+body:
+  - type: textarea
+    id: unknown
+    attributes:
+      label: What is unknown?
+    validations:
+      required: true
+  - type: textarea
+    id: consequence
+    attributes:
+      label: Why does the unknown matter?
+    validations:
+      required: true
+  - type: textarea
+    id: current_evidence
+    attributes:
+      label: Current evidence / prior attempts
+  - type: textarea
+    id: resolution
+    attributes:
+      label: What would resolve the gap?
+      description: Define acceptable observation, experiment, source, or test.
+    validations:
+      required: true
+  - type: textarea
+    id: shortcuts
+    attributes:
+      label: Prohibited shortcuts / unsupported assumptions
+  - type: dropdown
+    id: consequence_class
+    attributes:
+      label: Consequence class
+      options:
+        - Low
+        - Bounded
+        - High
+    validations:
+      required: true
