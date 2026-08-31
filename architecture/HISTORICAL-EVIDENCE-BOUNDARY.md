@@ -25,6 +25,8 @@ CURRENT_ARCHITECTURAL_CONCEPT != HISTORICAL_PACKAGE_TERMINOLOGY unless primary e
 
 Modern VaultOS concepts may be valid architectural improvements without having existed in an earlier package under the same name or role.
 
+Established VaultOS terms should be recovered from shared primary artifacts before new terminology is introduced. A newly introduced term is PROPOSED until it is explicitly promoted through the architecture/evidence process.
+
 ## Verified historical baseline
 
 ### Package 0
@@ -50,22 +52,27 @@ EnvironmentRepository is an in-memory snapshot repository. Cross-process/disk pe
 
 No MacProposal, MacContext, MacIntentRequest, or EnvironmentRuntime gating mechanism is established in the verified P0/P1 implementation.
 
-### ArchiveProjection
+### WorkflowPattern
 
-ArchiveProjection is a verified read-only historical projection layer over P0/P1 getters. Its implementation existence and behavior are established; its canonical Package 2 placement is not.
+WorkflowPattern is VERIFIED as a real P0-level concept in the narrow sense that it is a live `BOX_CANDIDATE_TYPES` value and is exercised by a real Box test. No separate WorkflowPattern class or broader structural contract is established by the verified P0 source.
 
-### Package 2
+### ArchiveProjection / Package 2
 
-Package 2 historical identity remains unresolved.
+ArchiveProjection is a verified read-only historical projection layer over P0/P1 getters.
 
-Primary evidence establishes that:
+The label `Package 2 = Archive Historical Projection / ArchiveProjection` is VERIFIED as an explicit, deliberate in-conversation authorization and implementation label. The assignment followed a documented specification-recovery chain and was not merely inferred from chronological order.
 
-- WorkflowPattern and DESS terminology predate ArchiveProjection work;
-- a pre-existing fixture explicitly associates DESS with Package 3 rather than Package 2;
-- P0-era fixtures use Package 2 language around durable-export/process-kill-recovery behavior;
-- the relationship between those fixtures, ArchiveProjection, and later MAC-composition narratives remains unresolved.
+This verified label assignment does not establish a continuous pre-conversation Package 2 lineage. That broader historical continuity remains UNRESOLVED.
 
-No unresolved candidate may be silently promoted to canonical Package 2 merely to make the timeline cleaner.
+P0-era durable-export/process-kill-recovery references to `Package 2` are VERIFIED as illustrative free-text fixture content only. They do not constrain an executable code path and do not establish a competing Package 2 architecture.
+
+DESS appears in one P0-era ACP test fixture associated in free text with `Package 3`. That occurrence is VERIFIED as fixture text, but DESS package identity remains UNRESOLVED as architecture. No verified first-party P0/P1 source establishes DESS as Package 2 architecture.
+
+The durable-export fixture narrative, the DESS fixture narrative, and ArchiveProjection are not to be collapsed into one historical specification without additional primary evidence.
+
+## Smallest safe Package 2 statement
+
+Within the verified construction record, Package 2 was explicitly and deliberately assigned to Archive Historical Projection / ArchiveProjection and was built and frozen under that label. Earlier P0 fixtures contain informal Package 2 and Package 3 narrative examples, but those examples are placeholder prose rather than executable package specifications. Whether the ArchiveProjection label corresponds to an architecture that existed before the verified construction record remains UNRESOLVED.
 
 ## Current architecture versus historical reconstruction
 
