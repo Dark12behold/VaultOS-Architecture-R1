@@ -9,7 +9,7 @@
   "r2_buckets": [
     {
       "binding": "ARTIFACTS",
-      "bucket_name": "Test"
+      "bucket_name": "metatextum-lab-artifacts"
     }
   ]
 }
